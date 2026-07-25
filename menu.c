@@ -10,13 +10,12 @@ typedef struct
 {
     char description[50];
     int (*action)();
-    // TODO: implements submenus
 } Option;
 
 typedef struct
 {
     Option options[MAX_OPTIONS_AMOUNT + 1];
-    int count;
+    int total;
 } Options;
 
 typedef struct
@@ -30,51 +29,6 @@ int Menu_show(Menu *menu);
 int Menu_is_valid_option(int option, Menu *menu);
 int Menu_execute_action(int option, Menu *menu);
 int Menu_launch(Menu *menu);
-
-int hello()
-{
-    printf("Hello! \n");
-}
-int goodbye()
-{
-    printf("Goodbye! \n");
-}
-int thanks()
-{
-    printf("Thanks! \n");
-}
-
-int main()
-{
-
-    Menu main_menu = {
-        .title = "Main menu",
-        .options = {
-            .options = {{.description = "Sair"}},
-            .count = 1}};
-
-    Option first_option = {
-        .description = "First option",
-        .action = &hello
-    };
-    Menu_register_option(&main_menu, &first_option);
-
-    // Option second_option = {
-    //     .description = "Second option",
-    //     .action = &goodbye
-    // };
-    // Menu_register_option(&main_menu, &second_option);
-
-    // Option third_option = {
-    //     .description = "Third option",
-    //     .action = &thanks
-    // };
-    // Menu_register_option(&main_menu, &third_option);
-
-    Menu_launch(&main_menu);
-
-    return 0;
-}
 
 int Menu_launch(Menu *menu)
 {
@@ -115,12 +69,12 @@ int Menu_register_option(Menu *menu, Option *option)
         printf("Option action cannot be NULL. Aborting registration\n");
         return 1;
     }
-    if (menu->options.count >= MAX_OPTIONS_AMOUNT + 1)
+    if (menu->options.total >= MAX_OPTIONS_AMOUNT + 1)
     {
         return MAX_OPTIONS_REACHED_ERROR_CODE;
     }
 
-    menu->options.options[menu->options.count++] = *option;
+    menu->options.options[menu->options.total++] = *option;
 
     return 0;
 }
@@ -132,7 +86,7 @@ int Menu_show(Menu *m)
     printf("-------------- %s --------------\n", menu.title);
     printf("\n");
 
-    for (int i = 0; i < menu.options.count; i++)
+    for (int i = 0; i < menu.options.total; i++)
     {
         printf("[%d] -> %s\n", i, menu.options.options[i].description);
     }
@@ -140,13 +94,13 @@ int Menu_show(Menu *m)
 
 int Menu_is_valid_option(int option, Menu *menu)
 {
-    if (menu->options.count <= 1) {
+    if (menu->options.total <= 1) {
         printf("No option was registered for '%s'\n", menu->title);
         return 1;
     }
-    if (option < 0 || option >= menu->options.count)
+    if (option < 0 || option >= menu->options.total)
     {
-        printf("Invalid option '%d' for menu '%s' (total options = %d)\n", option, menu->title, menu->options.count);
+        printf("Invalid option '%d' for menu '%s' (total options = %d)\n", option, menu->title, menu->options.total);
         return 1;
     }
 
@@ -155,8 +109,5 @@ int Menu_is_valid_option(int option, Menu *menu)
 
 int Menu_execute_action(int option, Menu *menu)
 {
-    // printf("Option addr: %p \n", &menu->options.options[option]);
-    // printf("Action addr: %p \n", &menu->options.options[option].action);
-
     menu->options.options[option].action();
 }
